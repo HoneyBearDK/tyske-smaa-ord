@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tysk-Dansk Småord Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .word {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .choices button {
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .choices button.correct {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .choices button.incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .choices button:hover {
+            background-color: #f0f0f0;
+        }
+
+        #nextButton, #resetButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #resetButton {
+            background-color: #f44336;
+        }
+
+        #result {
+            font-size: 20px;
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="word" id="wordDisplay">Ord</div>
+    <div class="choices">
+        <button onclick="checkAnswer(0)" id="choice0">Valg 1</button>
+        <button onclick="checkAnswer(1)" id="choice1">Valg 2</button>
+        <button onclick="checkAnswer(2)" id="choice2">Valg 3</button>
+        <button onclick="checkAnswer(3)" id="choice3">Valg 4</button>
+    </div>
+    <button onclick="startQuiz()" id="nextButton">Næste</button>
+    <button onclick="resetQuiz()" id="resetButton">Afslut og Start Ny Runde</button>
+</div>
+
+<script>
+    // Array of Danish and German word pairs
+    const words = [
+        {danish: "af og til", german: "manchmal"},
+        {danish: "allerede", german: "schon"},
+        {danish: "alligevel", german: "trotzdem"},
+        {danish: "altid", german: "immer"},
+        {danish: "både – og", german: "sowohl – als auch"},
+        {danish: "derfor", german: "deshalb"},
+        {danish: "desværre", german: "leider"},
+        {danish: "ellers", german: "sonst"},
+        {danish: "en gang", german: "einmal"},
+        {danish: "endnu", german: "noch"},
+        {danish: "enten – eller", german: "entweder – oder"},
+        {danish: "først", german: "erst"},
+        {danish: "hellere", german: "lieber"},
+        {danish: "hverken – eller", german: "weder – noch"},
+        {danish: "igen", german: "wieder"},
+        {danish: "intet", german: "nichts"},
+        {danish: "kun", german: "nur"},
+        {danish: "men", german: "aber"},
+        {danish: "måske", german: "vielleicht"},
+        {danish: "nu", german: "jetzt"},
+        {danish: "næsten", german: "fast"},
+        {danish: "nøjagtig", german: "genau"},
+        {danish: "også", german: "auch"},
+        {danish: "slet ikke", german: "gar nicht"},
+        {danish: "snart", german: "bald"},
+        {danish: "stadig", german: "immer noch"},
+        {danish: "straks", german: "sofort"},
+        {danish: "så", german: "dann"}
+    ];
+
+    let currentWord = {};
+    let usedWords = [];
+    let correctAnswerIndex;
+
+    function startQuiz() {
+        document.getElementById('nextButton').style.display = 'none';
+        if (usedWords.length === words.length) {
+            // If all words have been used, allow resetting
+            document.getElementById('resetButton').style.display = 'inline';
+            return;
+        }
+
+        document.getElementById('resetButton').style.display = 'none';
+
+        // Select a random word that hasn't been used
+        do {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+        } while (usedWords.includes(currentWord));
+
+        usedWords.push(currentWord);
+
+        // Randomly decide whether to show Danish or German
+        const showDanish = Math.random() > 0.5;
+        const wordToShow = showDanish ? currentWord.danish : currentWord.german;
+        const correctTranslation = showDanish ? currentWord.german : currentWord.danish;
+
+        document.getElementById('wordDisplay').textContent = wordToShow;
+
+        // Set up answer choices
+        correctAnswerIndex = Math.floor(Math.random() * 4);
+        document.getElementById('choice' + correctAnswerIndex).textContent = correctTranslation;
+        document.getElementById('choice' + correctAnswerIndex).classList.remove("correct", "incorrect");
+
+        let wrongChoices = words.filter(word => word !== currentWord)
+                                .map(word => showDanish ? word.german : word.danish);
+
+        // Shuffle wrong choices and assign them to the other buttons
+        wrongChoices = wrongChoices.sort(() => 0.5 - Math.random()).slice(0, 3);
+        let j = 0;
+        for (let i = 0; i < 4; i++) {
+            if (i !== correctAnswerIndex) {
+                document.getElementById('choice' + i).textContent = wrongChoices[j];
+                document.getElementById('choice' + i).classList.remove("correct", "incorrect");
+                j++;
+            }
+        }
+    }
+
+    function checkAnswer(index) {
+        if (index === correctAnswerIndex) {
+            document.getElementById('choice' + index).classList.add("correct");
+        } else {
+            document.getElementById('choice' + index).classList.add("incorrect");
+            document.getElementById('choice' + correctAnswerIndex).classList.add("correct");
+        }
+        document.getElementById('nextButton').style.display = 'inline';
+    }
+
+    function resetQuiz() {
+        usedWords = [];
+        startQuiz();
+    }
+
+    // Start the quiz on load
+    window.onload = startQuiz;
+</script>
+
+</body>
+</html>
