@@ -96,6 +96,7 @@
     </div>
     <button onclick="startQuiz()" id="nextButton">Næste</button>
     <button onclick="resetQuiz()" id="resetButton">Afslut og Start Ny Runde</button>
+    <div id="result"></div>
 </div>
 
 <script>
@@ -134,16 +135,25 @@
     let currentWord = {};
     let usedWords = [];
     let correctAnswerIndex;
+    let correctAnswers = 0;  // New: To count correct answers
 
     function startQuiz() {
         document.getElementById('nextButton').style.display = 'none';
         if (usedWords.length === words.length) {
-            // If all words have been used, allow resetting
+            // If all words have been used, show the result
+            document.getElementById('result').textContent = `Du fik ${correctAnswers} rigtige ud af ${words.length}!`;
+            if (correctAnswers < words.length / 2) {
+                document.getElementById('result').textContent += " Lidt er da bedre end ingenting!";
+            } else {
+                document.getElementById('result').textContent += " Du bist wunderbar!";
+            }
+            // Show reset button
             document.getElementById('resetButton').style.display = 'inline';
             return;
         }
 
         document.getElementById('resetButton').style.display = 'none';
+        document.getElementById('result').textContent = ""; // Clear result
 
         // Select a random word that hasn't been used
         do {
@@ -182,6 +192,7 @@
     function checkAnswer(index) {
         if (index === correctAnswerIndex) {
             document.getElementById('choice' + index).classList.add("correct");
+            correctAnswers++;  // New: Increment correct answers
         } else {
             document.getElementById('choice' + index).classList.add("incorrect");
             document.getElementById('choice' + correctAnswerIndex).classList.add("correct");
@@ -191,6 +202,7 @@
 
     function resetQuiz() {
         usedWords = [];
+        correctAnswers = 0;  // New: Reset correct answers
         startQuiz();
     }
 
